@@ -13,6 +13,7 @@
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
     "connect-flash": "0.1.1",
-    "express-session": "1.15.6"
+    "express-session": "1.15.6",
+    "mongolass": "4.4.7"
   }
 }

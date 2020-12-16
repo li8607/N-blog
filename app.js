@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var flash = require('connect-flash');
+var MongoStore = require('connent-mongo')(session);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -29,7 +30,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   saveUninitialized: false,
   secret: 'myblog',
-  resave: true
+  resave: true,
+  store: new MongoStore({
+    url: 'mongodb://localhost:27017/myblog'
+  })
 }))
 app.use(flash())
 
