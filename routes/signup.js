@@ -5,3 +5,5 @@ const checkNotLogin = require('../middlewares/check').checkNotLogin
 router.get('/', checkNotLogin,  function(req, res, next) {
     res.render('signup')
 })
+
+module.exports = router
