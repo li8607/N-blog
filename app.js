@@ -5,7 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var flash = require('connect-flash');
-var MongoStore = require('connent-mongo')(session);
+var MongoStore = require('connect-mongo')(session);
+const bodyParser = require('body-parser')
+const multer = require('multer')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -32,10 +34,18 @@ app.use(session({
   secret: 'myblog',
   resave: true,
   store: new MongoStore({
+    // 'mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb'
     url: 'mongodb://localhost:27017/myblog'
   })
 }))
 app.use(flash())
+
+const upload = multer({dest: './public/images'})
+
+app.use(upload.any())
+
+app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json())
 
 app.use(function(req, res, next) {
   res.locals.user = req.session.user
