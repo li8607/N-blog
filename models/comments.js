@@ -5,6 +5,7 @@ Comment.plugin('contentToHtml', {
     afterFind: function (comments) {
         return comments.map(function(comment) {
             comment.content = marked(comment.content);
+            console.log('comment.content = ' + comment.content)
             return comment;
         })
     }
@@ -28,8 +29,13 @@ module.exports = {
     },
 
     getComments: function getComments (postId) {
-        return Comment.find({ postId: postId }).populate({ path: 'author', model: 'User' }).sort({ _id: 1 }).addCreatedAt().contentToHtml().exec();
-    },
+        return Comment
+          .find({ postId: postId })
+          .populate({ path: 'author', model: 'User' })
+          .sort({ _id: 1 })
+          .contentToHtml()
+          .exec()
+      },
 
     getCommentCount: function getCommentCount(postId) {
         return Comment.count({ postId: postId }).exec();

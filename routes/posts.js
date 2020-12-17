@@ -3,6 +3,7 @@ const router = express.Router()
 const PostModel = require('../models/posts')
 const checkLogin = require('../middlewares/check').checkLogin
 const ejsLint = require('ejs-lint');
+const CommentModel = require('../models/comments')
 
 router.get('/', function(req, res, next) {
     const author = req.query.author
@@ -53,15 +54,19 @@ router.get('/:postId', function (req, res, next) {
     const postId = req.params.postId
 
     Promise.all([
-        PostModel.getPostById(postId)
+        PostModel.getPostById(postId),
+        CommentModel.getComments(postId),
+        PostModel.incPv(postId)
     ]).then(function(result) {
         const post = result[0]
+        const comments = result[1]
         if(!post) {
             throw new Error('该文章不存在')
         }
 
         res.render('post', {
-            post: post
+            post: post,
+            comments: comments
         })
     }).catch(next)
 })

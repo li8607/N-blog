@@ -1,6 +1,27 @@
 const marked = require('marked')
 const Post = require('../lib/mongo').Post
-// const CommentModel = require('./comments')
+const CommentModel = require('../models/comments')
+
+Post.plugin('addCommentsCount', {
+    afterFind: function (posts) {
+        return Promise.all(posts.map(function (post) {
+            return CommentModel.getCommentCount(post._id).then(function (commentsCount) {
+                post.commentsCount = commentsCount
+                return post
+            })
+        }))
+    },
+
+    afterFindOne: function(post) {
+        if(post) {
+            return CommentModel.getCommentCount(post._id).then(function(count) {
+                post.commentsCount = count
+                return post
+            })
+        }
+        return post
+    }
+})
 
 Post.plugin('contentToHtml', {
     afterFind: function(posts) {
@@ -24,7 +45,7 @@ module.exports = {
 
     getPostById: function getPostById(postId) {
         return Post.findOne({_id: postId}).populate({path: 'author', model: 'User'})
-        .addCreateAt().contentToHtml().exec();
+        .addCreateAt().addCommentsCount().contentToHtml().exec();
     },
 
     getPosts: function getPosts(author) {
@@ -44,11 +65,14 @@ module.exports = {
     },
 
     delPostById: function delPostById(postId) {
-        return Post.deleteOne({_id: postId}).exec();
-        // .then(function(res) {
-        //     if(res.result.ok && res.result.n > 0) {
-        //         return CommontModel.delCommentsByPostId(postId);
-        //     }
-        // })
+        return Post.deleteOne({_id: postId}).exec().then(function(res) {
+            if(res.result.ok && res.result.n > 0) {
+                return CommentModel.delCommentsByPostId(postId);
+            }
+        })
+    },
+
+    incPv: function incPv(postId) {
+        return Post.update({_id: postId}, {$inc: {pv: 1}}).exec()
     }
 }

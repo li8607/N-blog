@@ -31,4 +31,22 @@ router.post('/', checkLogin, function(req, res, next) {
     }).catch(next)
 });
 
+router.get('/:commentId/remove', checkLogin, function(req, res, next) {
+    const commentId = req.params.commentId
+    const author = req.session.user._id
+
+    CommentModel.getCommentById(commentId).then(function(comment) {
+        if(!comment) {
+            throw new Error('留言不存在')
+        }
+        if(comment.author.toString() !== author.toString()) {
+            throw new Error('没有权限删除留言')
+        }
+        CommentModel.delCommentById(commentId).then(function() {
+            req.flash('success', '删除留言成功')
+            res.redirect('back')
+        }).catch(next)
+    }).catch(next)
+})
+
 module.exports = router
