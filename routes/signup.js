@@ -27,7 +27,7 @@ router.post('/', checkNotLogin, function(req, res, next) {
     const name = req.body.name;
     const gender = req.body.gender;
     const bio = req.body.bio;
-    const avatar = req.files[0].path;
+    const avatar = "images/"+req.files[0].filename;
     let password = req.body.password;
     const repassword = req.body.repassword;
 

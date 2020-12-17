@@ -43,7 +43,7 @@ app.use(session({
 }))
 app.use(flash())
 
-const upload = multer({dest: './public/images'})
+const upload = multer({dest: './public/images', preservePath: true})
 
 app.use(upload.any())
 
