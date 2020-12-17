@@ -117,4 +117,25 @@ router.post('/:postId/edit', checkLogin, function(req, res, next) {
     }).catch(next)
 })
 
+router.get('/:postId/remove', checkLogin, function(req, res, next) {
+    const postId = req.params.postId
+    const author = req.session.user._id
+
+    PostModel.getRawPostById(postId).then(function(post) {
+        if(!post) {
+            throw new Error('文章不存在')
+        }
+
+        if(post.author._id.toString() !== author.toString()) {
+            throw new Error('没有权限')
+        }
+
+        PostModel.delPostById(postId).then(function() {
+            req.flash('success', '删除文章成功')
+            res.redirect('/posts')
+        }).catch(next)
+
+    }).catch(next)
+})
+
 module.exports = router

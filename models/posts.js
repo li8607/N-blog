@@ -41,5 +41,14 @@ module.exports = {
 
     updatePostById: function updatePostById(postId, data) {
         return Post.update({ _id: postId }, { $set: data }).exec();
+    },
+
+    delPostById: function delPostById(postId) {
+        return Post.deleteOne({_id: postId}).exec();
+        // .then(function(res) {
+        //     if(res.result.ok && res.result.n > 0) {
+        //         return CommontModel.delCommentsByPostId(postId);
+        //     }
+        // })
     }
 }
