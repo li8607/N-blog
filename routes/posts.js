@@ -56,15 +56,6 @@ router.get('/:postId', function (req, res, next) {
         PostModel.getPostById(postId)
     ]).then(function(result) {
         const post = result[0]
-
-        
-        console.log("title" + post.title)
-        console.log("content" + post.content)
-        console.log("created_at" + post.created_at)
-        console.log("author" + post.author)
-        console.log("_id" + post._id)
-        console.log("pv" + post.pv)
-
         if(!post) {
             throw new Error('该文章不存在')
         }
@@ -72,6 +63,57 @@ router.get('/:postId', function (req, res, next) {
         res.render('post', {
             post: post
         })
+    }).catch(next)
+})
+
+router.get('/:postId/edit', checkLogin, function(req, res, next) {
+    const postId = req.params.postId
+    const author = req.session.user._id
+
+    PostModel.getRawPostById(postId).then(function(post) {
+        if(!post) {
+            throw new Error('该文章不存在')
+        }
+
+        if(author.toString() !== post.author._id.toString()) {
+            throw new Error('权限不足')
+        }
+
+        res.render('edit', {post: post})
+    }).catch(next)
+})
+
+router.post('/:postId/edit', checkLogin, function(req, res, next) {
+    const postId = req.params.postId
+    const author = req.session.user._id
+    const title = req.body.title
+    const content = req.body.content
+
+    try {
+        if(!title.length) {
+            throw new Error('请填写标题')
+        }
+
+        if(!content.length) {
+            throw new Error('请填写内容')
+        }
+    } catch (error) {
+        req.flash('error', error.message)
+        return res.redirect('back')
+    }
+
+    PostModel.getRawPostById(postId).then(function(post) {
+        if(!post) {
+            throw new Error('文章不存在')
+        }
+        if(post.author._id.toString() !== author.toString()) {
+            throw new Error('没有权限')
+        }
+
+        PostModel.updatePostById(postId, { title: title, content: content }).then(function(){
+            req.flash('success', '编辑文章成功')
+            res.redirect(`/posts/${postId}`)
+        }).catch(next)
     }).catch(next)
 })
 

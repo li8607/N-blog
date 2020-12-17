@@ -33,5 +33,13 @@ module.exports = {
             query.author = author
         }
         return Post.find(query).populate({path: 'author', model: 'User'}).sort({_id: 1}).addCreateAt().contentToHtml().exec();
+    },
+
+    getRawPostById: function getRawPostById(postId) {
+        return Post.findOne({ _id: postId }).populate({ path: 'author', model: 'User' }).exec();
+    },
+
+    updatePostById: function updatePostById(postId, data) {
+        return Post.update({ _id: postId }, { $set: data }).exec();
     }
 }
